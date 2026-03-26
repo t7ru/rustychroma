@@ -77,7 +77,7 @@ jobs:
         run: |
           mkdir -p web native
 
-          mv artifacts/*.js artifacts/*.wasm web/
+          mv artifacts/*.js artifacts/*.wasm artifacts/*.d.ts web/
           zip -j rustychroma-web.zip web/*
 
           mv artifacts/rustychroma.h native/
