@@ -15,19 +15,15 @@ elif [[ "$BUILD_TARGET" == "native" ]]; then
 
 	[[ "$GEN_HEADER" == "true" ]] && cbindgen -o dist/native/rustychroma.h
 
+	echo "Organizing..."
 	cp target/release/rustychroma.dll dist/native/ 2>/dev/null || true
 	cp target/release/librustychroma.so dist/native/ 2>/dev/null || true
 	cp target/release/librustychroma.dylib dist/native/ 2>/dev/null || true
-fi
 
-echo "Organizing..."
-cp target/release/rustychroma.dll dist/native/ 2>/dev/null ||
-cp target/release/librustychroma.so dist/native/ 2>/dev/null ||
-cp target/release/librustychroma.dylib dist/native/ 2>/dev/null || true
-
-if [ -z "$(ls -A dist/native | grep -E '\.(dll|so|dylib)$')" ]; then
-    echo "Uh oh, no native library found in dist!"
-    exit 1
+	if [ -z "$(ls -A dist/native | grep -E '\.(dll|so|dylib)$')" ]; then
+		echo "Uh oh, no native library found in dist!"
+		exit 1
+	fi
 fi
 
 echo "Heeho! All done!"
