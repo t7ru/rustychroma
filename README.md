@@ -2,7 +2,7 @@
 
 A high-performance key background removal and edge erosion for Rust, C, C++, and WebAssembly. It is a port of [chromakey](https://github.com/t7ru/chromakey).
 
-## Install
+## Installation
 
 There are 3 options:
 1. crates.io: https://crates.io/crates/rustychroma
