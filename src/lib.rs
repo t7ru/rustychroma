@@ -6,9 +6,6 @@
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
 
-#[cfg(feature = "wasm")]
-use wasm_bindgen::prelude::*;
-
 // chromaCb and chromaCr compute BT.601 chroma components (range ~16-240).
 // Used for luminance independent keying so dark pixels always have neutral
 // chroma and are never falsely pulled into the removal range.
