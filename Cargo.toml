@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2024"
 description = "High-performance chroma key background removal and edge erosion"
 autotests = false
+license = "MIT"
+repository = "https://github.com/t7ru/rustychroma"
+readme = "README.md"
+keywords = ["chroma-key", "green-screen", "background-removal", "edge-erosion"]
+categories = ["multimedia::video", "multimedia::images"]
 
 [dependencies]
 rayon = { version = "1.11", optional = true }
