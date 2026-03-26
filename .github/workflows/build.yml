@@ -21,6 +21,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: cargo install cbindgen
 
+      - name: Run test script
+        shell: bash
+        run: ./test.sh
+
       - name: Run build script
         shell: bash
         run: ./build.sh
@@ -89,3 +93,14 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-crate:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    needs: [build-native, build-wasm]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish to crates.io
+        run: cargo publish --token ${{ secrets.TOKEN }}
