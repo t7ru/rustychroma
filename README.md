@@ -14,6 +14,11 @@ fn main() {
 	remove(&mut pixels, 0, 255, 0, 7000.0);
 }
 ```
+Do note that multi-threading is disabled by default, to enable:
+```toml
+[dependencies]
+rustychroma = { version = "0.1", features = ["parallel"] }
+```
 
 C:
 ```c
