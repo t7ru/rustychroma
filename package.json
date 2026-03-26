@@ -1,0 +1,23 @@
+{
+	"name": "rustychroma",
+	"version": "0.1.0",
+	"author": "t7ru",
+	"license": "MIT",
+	"description": "High-performance chroma key background removal and edge erosion.",
+	"type": "module",
+	"main": "rustychroma.js",
+	"types": "rustychroma.d.ts",
+	"files": [
+		"rustychroma_bg.wasm",
+		"rustychroma_bg.wasm.d.ts",
+		"rustychroma.js",
+		"rustychroma.d.ts"
+	],
+	"keywords": [
+		"chroma-key",
+		"green-screen",
+		"background-removal",
+		"edge-erosion"
+	],
+	"homepage": "https://github.com/t7ru/rustychroma"
+}

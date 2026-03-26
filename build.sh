@@ -9,6 +9,7 @@ echo "Building..."
 if [[ "$BUILD_TARGET" == "wasm" || -z "$BUILD_TARGET" ]]; then
 	cargo build --target wasm32-unknown-unknown -r --features wasm
 	wasm-bindgen --target web --out-dir dist/web target/wasm32-unknown-unknown/release/rustychroma.wasm
+	cp package.json dist/web/
 fi
 
 if [[ "$BUILD_TARGET" == "native" || -z "$BUILD_TARGET" ]]; then
