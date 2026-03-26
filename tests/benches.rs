@@ -39,7 +39,7 @@ fn make_test_rgba(w: usize, h: usize, seed: u64) -> Vec<u8> {
 }
 
 #[divan::bench]
-fn bench_remove_1080p(bencher: Bencher) {
+fn remove_1080p(bencher: Bencher) {
     let src = green_1080p();
     bencher.with_inputs(|| src.clone()).bench_values(|mut buf| {
         remove(&mut buf, 0, 255, 0, 7000.0);
@@ -48,7 +48,7 @@ fn bench_remove_1080p(bencher: Bencher) {
 }
 
 #[divan::bench]
-fn bench_remove_1024x1024(bencher: Bencher) {
+fn remove_1024x1024(bencher: Bencher) {
     let src = make_test_rgba(W_1K, H_1K, 12345);
     bencher.with_inputs(|| src.clone()).bench_values(|mut buf| {
         remove(&mut buf, 0xDF, 0x03, 0xDF, 7000.0);
@@ -57,7 +57,7 @@ fn bench_remove_1024x1024(bencher: Bencher) {
 }
 
 #[divan::bench]
-fn bench_remove_range_1080p(bencher: Bencher) {
+fn remove_range_1080p(bencher: Bencher) {
     let src = green_1080p();
     bencher.with_inputs(|| src.clone()).bench_values(|mut buf| {
         remove_range(&mut buf, 0, 255, 0, 1000.0, 7000.0);
@@ -66,7 +66,7 @@ fn bench_remove_range_1080p(bencher: Bencher) {
 }
 
 #[divan::bench]
-fn bench_remove_range_1024x1024(bencher: Bencher) {
+fn remove_range_1024x1024(bencher: Bencher) {
     let src = make_test_rgba(W_1K, H_1K, 12345);
     bencher.with_inputs(|| src.clone()).bench_values(|mut buf| {
         remove_range(&mut buf, 0xDF, 0x03, 0xDF, 1000.0, 7000.0);
@@ -75,7 +75,7 @@ fn bench_remove_range_1024x1024(bencher: Bencher) {
 }
 
 #[divan::bench]
-fn bench_erode_1080p(bencher: Bencher) {
+fn erode_1080p(bencher: Bencher) {
     let src = vec![255u8; W_1080P * H_1080P * 4];
     bencher
         .with_inputs(|| vec![0u8; src.len()])
@@ -86,7 +86,7 @@ fn bench_erode_1080p(bencher: Bencher) {
 }
 
 #[divan::bench]
-fn bench_erode_1024x1024(bencher: Bencher) {
+fn erode_1024x1024(bencher: Bencher) {
     let mut src = make_test_rgba(W_1K, H_1K, 42);
     for y in 0..256usize {
         for x in 0..256usize {
