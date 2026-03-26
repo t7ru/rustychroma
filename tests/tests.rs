@@ -72,7 +72,7 @@ fn load_png_rgba(path: &str) -> (Vec<u8>, usize, usize) {
 
 // remove
 #[test]
-fn test_remove_preserves_non_key_pixel() {
+fn remove_preserves_non_key_pixel() {
     let mut buf = make_3x3_green_red();
     remove(&mut buf, 0, 255, 0, 7000.0);
     assert_ne!(
@@ -83,7 +83,7 @@ fn test_remove_preserves_non_key_pixel() {
 }
 
 #[test]
-fn test_remove_erases_key_pixel() {
+fn remove_erases_key_pixel() {
     let mut buf = make_3x3_green_red();
     remove(&mut buf, 0, 255, 0, 7000.0);
     assert_eq!(
@@ -94,14 +94,14 @@ fn test_remove_erases_key_pixel() {
 }
 
 #[test]
-fn test_remove_skips_already_transparent() {
+fn remove_skips_already_transparent() {
     let mut buf = vec![0u8, 255, 0, 0];
     remove(&mut buf, 0, 255, 0, 7000.0);
     assert_eq!(&buf, &[0, 255, 0, 0]);
 }
 
 #[test]
-fn test_remove_file() {
+fn remove_file() {
     let (mut pixels, w, h) = load_png_rgba("tests/test.png");
     let original_len = pixels.len();
     remove(&mut pixels, 0xDF, 0x03, 0xDF, 7000.0);
@@ -111,7 +111,7 @@ fn test_remove_file() {
 
 // remove_range
 #[test]
-fn test_remove_range_background_transparent() {
+fn remove_range_background_transparent() {
     let mut buf = make_3x3_range();
     remove_range(&mut buf, 0, 255, 0, 1000.0, 7000.0);
     assert_eq!(
@@ -122,7 +122,7 @@ fn test_remove_range_background_transparent() {
 }
 
 #[test]
-fn test_remove_range_foreground_opaque() {
+fn remove_range_foreground_opaque() {
     let mut buf = make_3x3_range();
     remove_range(&mut buf, 0, 255, 0, 1000.0, 7000.0);
     assert_eq!(
@@ -133,7 +133,7 @@ fn test_remove_range_foreground_opaque() {
 }
 
 #[test]
-fn test_remove_range_edge_semi_transparent() {
+fn remove_range_edge_semi_transparent() {
     let mut buf = make_3x3_range();
     remove_range(&mut buf, 0, 255, 0, 1000.0, 7000.0);
     let a = alpha_at(&buf, 3, 1, 1);
@@ -144,7 +144,7 @@ fn test_remove_range_edge_semi_transparent() {
 }
 
 #[test]
-fn test_remove_range_file() {
+fn remove_range_file() {
     let (mut pixels, w, h) = load_png_rgba("tests/test.png");
     let original_len = pixels.len();
     remove_range(&mut pixels, 0xDF, 0x03, 0xDF, 1000.0, 7000.0);
@@ -154,7 +154,7 @@ fn test_remove_range_file() {
 
 // erode
 #[test]
-fn test_erode_centre_survives() {
+fn erode_centre_survives() {
     let src = make_5x5_centre_square();
     let mut dst = vec![0u8; src.len()];
     erode(&src, &mut dst, 5, 5);
@@ -166,7 +166,7 @@ fn test_erode_centre_survives() {
 }
 
 #[test]
-fn test_erode_edge_removed() {
+fn erode_edge_removed() {
     let src = make_5x5_centre_square();
     let mut dst = vec![0u8; src.len()];
     erode(&src, &mut dst, 5, 5);
@@ -178,7 +178,7 @@ fn test_erode_edge_removed() {
 }
 
 #[test]
-fn test_erode_output_zeroed_for_transparent_src() {
+fn erode_output_zeroed_for_transparent_src() {
     let src = vec![0u8; 4 * 4 * 4];
     let mut dst = vec![0xFFu8; src.len()];
     erode(&src, &mut dst, 4, 4);
