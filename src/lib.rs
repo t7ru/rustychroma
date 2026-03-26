@@ -8,13 +8,10 @@ use rayon::prelude::*;
 // Used for luminance independent keying so dark pixels always have neutral
 // chroma and are never falsely pulled into the removal range.
 #[inline(always)]
-fn chroma_cb(r: i32, g: i32, b: i32) -> i32 {
-    ((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128
-}
-
-#[inline(always)]
-fn chroma_cr(r: i32, g: i32, b: i32) -> i32 {
-    ((112 * r - 94 * g - 18 * b + 128) >> 8) + 128
+fn chroma(r: i32, g: i32, b: i32) -> (i32, i32) {
+    let cb = ((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128;
+    let cr = ((112 * r - 94 * g - 18 * b + 128) >> 8) + 128;
+    (cb, cr)
 }
 
 /// **remove** modifies an RGBA buffer where pixels whose chroma is within
@@ -23,8 +20,7 @@ fn chroma_cr(r: i32, g: i32, b: i32) -> i32 {
 /// threshold is the squared Euclidean distance of BT.601 chroma components (dCb^2 + dCr^2).
 pub fn remove(pixels: &mut [u8], kr: u8, kg: u8, kb: u8, threshold: f64) {
     let thresh = threshold as i32;
-    let key_cb = chroma_cb(kr as i32, kg as i32, kb as i32);
-    let key_cr = chroma_cr(kr as i32, kg as i32, kb as i32);
+    let (key_cb, key_cr) = chroma(kr as i32, kg as i32, kb as i32);
 
     #[cfg(feature = "parallel")]
     let iter = pixels.par_chunks_exact_mut(4);
@@ -35,8 +31,9 @@ pub fn remove(pixels: &mut [u8], kr: u8, kg: u8, kb: u8, threshold: f64) {
         if px[3] == 0 {
             return;
         }
-        let dcb = chroma_cb(px[0] as i32, px[1] as i32, px[2] as i32) - key_cb;
-        let dcr = chroma_cr(px[0] as i32, px[1] as i32, px[2] as i32) - key_cr;
+        let (cb, cr) = chroma(px[0] as i32, px[1] as i32, px[2] as i32);
+        let dcb = cb - key_cb;
+        let dcr = cr - key_cr;
         if dcb * dcb + dcr * dcr < thresh {
             px[0] = 0;
             px[1] = 0;
@@ -68,8 +65,7 @@ pub fn remove_range(
     let recip: u64 = (1u64 << 32) / thresh_diff as u64;
     let inv_thresh_diff_f = 1.0_f32 / thresh_diff as f32;
 
-    let key_cb = chroma_cb(kr as i32, kg as i32, kb as i32);
-    let key_cr = chroma_cr(kr as i32, kg as i32, kb as i32);
+    let (key_cb, key_cr) = chroma(kr as i32, kg as i32, kb as i32);
     let krf = kr as f32;
     let kgf = kg as f32;
     let kbf = kb as f32;
@@ -88,8 +84,9 @@ pub fn remove_range(
         let b = px[2];
         let a = px[3];
 
-        let dcb = chroma_cb(r as i32, g as i32, b as i32) - key_cb;
-        let dcr = chroma_cr(r as i32, g as i32, b as i32) - key_cr;
+        let (cb, cr) = chroma(px[0] as i32, px[1] as i32, px[2] as i32);
+        let dcb = cb - key_cb;
+        let dcr = cr - key_cr;
         let dist = dcb * dcb + dcr * dcr;
 
         if dist <= min_thresh {
