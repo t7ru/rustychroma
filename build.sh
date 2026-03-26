@@ -8,7 +8,7 @@ mkdir -p dist/web dist/native
 echo "Building..."
 if [[ "$BUILD_TARGET" == "wasm" || -z "$BUILD_TARGET" ]]; then
 	cargo build --target wasm32-unknown-unknown -r --features wasm
-	wasm-bindgen --target web --out-dir dist/web --no-typescript target/wasm32-unknown-unknown/release/rustychroma.wasm
+	wasm-bindgen --target web --out-dir dist/web target/wasm32-unknown-unknown/release/rustychroma.wasm
 fi
 
 if [[ "$BUILD_TARGET" == "native" || -z "$BUILD_TARGET" ]]; then
