@@ -6,14 +6,15 @@ rm -rf dist
 mkdir -p dist/web dist/native
 
 echo "Building..."
-if [[ "$BUILD_TARGET" == "wasm" ]]; then
+if [[ "$BUILD_TARGET" == "wasm" || -z "$BUILD_TARGET" ]]; then
 	cargo build --target wasm32-unknown-unknown -r --features wasm
 	wasm-bindgen --target web --out-dir dist/web --no-typescript target/wasm32-unknown-unknown/release/rustychroma.wasm
+fi
 
-elif [[ "$BUILD_TARGET" == "native" ]]; then
+if [[ "$BUILD_TARGET" == "native" || -z "$BUILD_TARGET" ]]; then
 	cargo build --release --features c-api,parallel
 
-	[[ "$GEN_HEADER" == "true" ]] && cbindgen -o dist/native/rustychroma.h
+	[[ "$GEN_HEADER" == "true" || -z "$BUILD_TARGET" ]] && cbindgen -o dist/native/rustychroma.h
 
 	echo "Organizing..."
 	cp target/release/rustychroma.dll dist/native/ 2>/dev/null || true
