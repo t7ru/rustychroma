@@ -1,6 +1,6 @@
 {
   "name": "rustychroma",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "t7ru",
   "license": "MIT",
   "description": "High-performance chroma key background removal and edge erosion.",
