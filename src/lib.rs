@@ -1,21 +1,19 @@
-#![allow(non_snake_case)]
-
 //! Package rustychroma provides high-performance chroma key
 //! background removal and edge erosion for images.
 
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
 
-// chromaCb and chromaCr compute BT.601 chroma components (range ~16-240).
+// chroma_cb and chroma_cr compute BT.601 chroma components (range ~16-240).
 // Used for luminance independent keying so dark pixels always have neutral
 // chroma and are never falsely pulled into the removal range.
 #[inline(always)]
-fn chromaCb(r: i32, g: i32, b: i32) -> i32 {
+fn chroma_cb(r: i32, g: i32, b: i32) -> i32 {
     ((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128
 }
 
 #[inline(always)]
-fn chromaCr(r: i32, g: i32, b: i32) -> i32 {
+fn chroma_cr(r: i32, g: i32, b: i32) -> i32 {
     ((112 * r - 94 * g - 18 * b + 128) >> 8) + 128
 }
 
@@ -25,8 +23,8 @@ fn chromaCr(r: i32, g: i32, b: i32) -> i32 {
 /// threshold is the squared Euclidean distance of BT.601 chroma components (dCb^2 + dCr^2).
 pub fn remove(pixels: &mut [u8], kr: u8, kg: u8, kb: u8, threshold: f64) {
     let thresh = threshold as i32;
-    let keyCb = chromaCb(kr as i32, kg as i32, kb as i32);
-    let keyCr = chromaCr(kr as i32, kg as i32, kb as i32);
+    let key_cb = chroma_cb(kr as i32, kg as i32, kb as i32);
+    let key_cr = chroma_cr(kr as i32, kg as i32, kb as i32);
 
     #[cfg(feature = "parallel")]
     let iter = pixels.par_chunks_exact_mut(4);
@@ -37,8 +35,8 @@ pub fn remove(pixels: &mut [u8], kr: u8, kg: u8, kb: u8, threshold: f64) {
         if px[3] == 0 {
             return;
         }
-        let dcb = chromaCb(px[0] as i32, px[1] as i32, px[2] as i32) - keyCb;
-        let dcr = chromaCr(px[0] as i32, px[1] as i32, px[2] as i32) - keyCr;
+        let dcb = chroma_cb(px[0] as i32, px[1] as i32, px[2] as i32) - key_cb;
+        let dcr = chroma_cr(px[0] as i32, px[1] as i32, px[2] as i32) - key_cr;
         if dcb * dcb + dcr * dcr < thresh {
             px[0] = 0;
             px[1] = 0;
@@ -63,15 +61,15 @@ pub fn remove_range(
     min_threshold: f64,
     max_threshold: f64,
 ) {
-    let minThresh = min_threshold as i32;
-    let maxThresh = max_threshold as i32;
-    let threshDiff = (maxThresh - minThresh).max(1);
+    let min_thresh = min_threshold as i32;
+    let max_thresh = max_threshold as i32;
+    let thresh_diff = (max_thresh - min_thresh).max(1);
 
-    let recip: u64 = (1u64 << 32) / threshDiff as u64;
-    let invThreshDiffF = 1.0_f32 / threshDiff as f32;
+    let recip: u64 = (1u64 << 32) / thresh_diff as u64;
+    let inv_thresh_diff_f = 1.0_f32 / thresh_diff as f32;
 
-    let keyCb = chromaCb(kr as i32, kg as i32, kb as i32);
-    let keyCr = chromaCr(kr as i32, kg as i32, kb as i32);
+    let key_cb = chroma_cb(kr as i32, kg as i32, kb as i32);
+    let key_cr = chroma_cr(kr as i32, kg as i32, kb as i32);
     let krf = kr as f32;
     let kgf = kg as f32;
     let kbf = kb as f32;
@@ -90,23 +88,23 @@ pub fn remove_range(
         let b = px[2];
         let a = px[3];
 
-        let dcb = chromaCb(r as i32, g as i32, b as i32) - keyCb;
-        let dcr = chromaCr(r as i32, g as i32, b as i32) - keyCr;
+        let dcb = chroma_cb(r as i32, g as i32, b as i32) - key_cb;
+        let dcr = chroma_cr(r as i32, g as i32, b as i32) - key_cr;
         let dist = dcb * dcb + dcr * dcr;
 
-        if dist <= minThresh {
+        if dist <= min_thresh {
             px[0] = 0;
             px[1] = 0;
             px[2] = 0;
             px[3] = 0;
-        } else if dist < maxThresh {
-            let ratioNum = (dist - minThresh) as u64;
-            let newA = ((a as u64 * ratioNum * recip) >> 32) as u8;
-            let spill = 1.0_f32 - (dist - minThresh) as f32 * invThreshDiffF;
+        } else if dist < max_thresh {
+            let ratio_num = (dist - min_thresh) as u64;
+            let new_a = ((a as u64 * ratio_num * recip) >> 32) as u8;
+            let spill = 1.0_f32 - (dist - min_thresh) as f32 * inv_thresh_diff_f;
             px[0] = (r as f32 - spill * krf) as u8;
             px[1] = (g as f32 - spill * kgf) as u8;
             px[2] = (b as f32 - spill * kbf) as u8;
-            px[3] = newA;
+            px[3] = new_a;
         }
     });
 }
@@ -121,11 +119,11 @@ pub fn erode(src: &[u8], dst: &mut [u8], width: usize, height: usize) {
     dst.fill(0);
 
     #[cfg(feature = "parallel")]
-    let rowIter = dst.par_chunks_exact_mut(stride).enumerate();
+    let row_iter = dst.par_chunks_exact_mut(stride).enumerate();
     #[cfg(not(feature = "parallel"))]
-    let rowIter = dst.chunks_exact_mut(stride).enumerate();
+    let row_iter = dst.chunks_exact_mut(stride).enumerate();
 
-    rowIter.for_each(|(y, rowDst)| {
+    row_iter.for_each(|(y, row_dst)| {
         let off = y * stride;
 
         for x in (0..stride).step_by(4) {
@@ -133,16 +131,16 @@ pub fn erode(src: &[u8], dst: &mut [u8], width: usize, height: usize) {
                 continue;
             }
 
-            let isEdge = (x >= 4 && src[off + x - 1] == 0)
+            let is_edge = (x >= 4 && src[off + x - 1] == 0)
                 || (x + 4 < stride && src[off + x + 7] == 0)
                 || (y > 0 && src[off - stride + x + 3] == 0)
                 || (y + 1 < height && src[off + stride + x + 3] == 0);
 
-            if !isEdge {
-                rowDst[x] = src[off + x];
-                rowDst[x + 1] = src[off + x + 1];
-                rowDst[x + 2] = src[off + x + 2];
-                rowDst[x + 3] = src[off + x + 3];
+            if !is_edge {
+                row_dst[x] = src[off + x];
+                row_dst[x + 1] = src[off + x + 1];
+                row_dst[x + 2] = src[off + x + 2];
+                row_dst[x + 3] = src[off + x + 3];
             }
         }
     });
