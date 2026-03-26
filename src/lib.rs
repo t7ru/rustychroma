@@ -35,10 +35,7 @@ pub fn remove(pixels: &mut [u8], kr: u8, kg: u8, kb: u8, threshold: f64) {
         let dcb = cb - key_cb;
         let dcr = cr - key_cr;
         if dcb * dcb + dcr * dcr < thresh {
-            px[0] = 0;
-            px[1] = 0;
-            px[2] = 0;
-            px[3] = 0;
+            px.fill(0);
         }
     });
 }
@@ -90,10 +87,7 @@ pub fn remove_range(
         let dist = dcb * dcb + dcr * dcr;
 
         if dist <= min_thresh {
-            px[0] = 0;
-            px[1] = 0;
-            px[2] = 0;
-            px[3] = 0;
+            px.fill(0);
         } else if dist < max_thresh {
             let ratio_num = (dist - min_thresh) as u64;
             let new_a = ((a as u64 * ratio_num * recip) >> 32) as u8;
