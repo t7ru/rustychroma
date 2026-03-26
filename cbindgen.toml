@@ -1,0 +1,3 @@
+include_guard = "RUSTYCHROMA_H"
+no_includes = true
+sys_includes = ["cstdint"]
