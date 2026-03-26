@@ -10,6 +10,7 @@ if [[ "$BUILD_TARGET" == "wasm" || -z "$BUILD_TARGET" ]]; then
 	cargo build --target wasm32-unknown-unknown -r --features wasm
 	wasm-bindgen --target web --out-dir dist/web target/wasm32-unknown-unknown/release/rustychroma.wasm
 	cp package.json dist/web/
+	cp README.md dist/web/
 fi
 
 if [[ "$BUILD_TARGET" == "native" || -z "$BUILD_TARGET" ]]; then
@@ -21,6 +22,7 @@ if [[ "$BUILD_TARGET" == "native" || -z "$BUILD_TARGET" ]]; then
 	cp target/release/rustychroma.dll dist/native/ 2>/dev/null || true
 	cp target/release/librustychroma.so dist/native/ 2>/dev/null || true
 	cp target/release/librustychroma.dylib dist/native/ 2>/dev/null || true
+	cp README.md dist/native/
 
 	if [ -z "$(ls -A dist/native | grep -E '\.(dll|so|dylib)$')" ]; then
 		echo "Uh oh, no native library found in dist!"
