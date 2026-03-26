@@ -115,23 +115,20 @@ pub fn erode(src: &[u8], dst: &mut [u8], width: usize, height: usize) {
     let row_iter = dst.chunks_exact_mut(stride).enumerate();
 
     row_iter.for_each(|(y, row_dst)| {
-        let off = y * stride;
+        let row = &src[y * stride..(y + 1) * stride];
+        let prev = (y > 0).then(|| &src[(y - 1) * stride..y * stride]);
+        let next = (y + 1 < height).then(|| &src[(y + 1) * stride..(y + 2) * stride]);
 
         for x in (0..stride).step_by(4) {
-            if src[off + x + 3] == 0 {
+            if row[x + 3] == 0 {
                 continue;
             }
-
-            let is_edge = (x >= 4 && src[off + x - 1] == 0)
-                || (x + 4 < stride && src[off + x + 7] == 0)
-                || (y > 0 && src[off - stride + x + 3] == 0)
-                || (y + 1 < height && src[off + stride + x + 3] == 0);
-
+            let is_edge = (x >= 4 && row[x - 1] == 0)
+                || (x + 4 < stride && row[x + 7] == 0)
+                || prev.is_some_and(|r| r[x + 3] == 0)
+                || next.is_some_and(|r| r[x + 3] == 0);
             if !is_edge {
-                row_dst[x] = src[off + x];
-                row_dst[x + 1] = src[off + x + 1];
-                row_dst[x + 2] = src[off + x + 2];
-                row_dst[x + 3] = src[off + x + 3];
+                row_dst[x..x + 4].copy_from_slice(&row[x..x + 4]);
             }
         }
     });
