@@ -16,4 +16,9 @@ cp target/release/rustychroma.dll dist/native/ 2>/dev/null ||
 cp target/release/librustychroma.so dist/native/ 2>/dev/null ||
 cp target/release/librustychroma.dylib dist/native/ 2>/dev/null || true
 
+if [ -z "$(ls -A dist/native | grep -E '\.(dll|so|dylib)$')" ]; then
+    echo "Uh oh, no native library found in dist!"
+    exit 1
+fi
+
 echo "Heeho! All done!"
