@@ -85,8 +85,8 @@ pub fn remove_range(
         if dist <= min_thresh {
             px.fill(0);
         } else if dist < max_thresh {
-            let ratio_num = (dist - min_thresh) as u64;
-            let new_a = ((px[3] as u64 * ratio_num * recip) >> 32) as u8;
+            let above_min = (dist - min_thresh) as u64;
+            let new_a = ((px[3] as u64 * above_min * recip) >> 32) as u8;
             let spill = 1.0_f32 - (dist - min_thresh) as f32 * inv_thresh_diff_f;
             px[0] = (px[0] as f32 - spill * krf) as u8;
             px[1] = (px[1] as f32 - spill * kgf) as u8;
