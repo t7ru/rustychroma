@@ -182,7 +182,7 @@ mod wasm_api {
         crate::remove(pixels, kr, kg, kb, threshold);
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = "removeRange")]
     pub fn remove_range(
         pixels: &mut [u8],
         kr: u8,
