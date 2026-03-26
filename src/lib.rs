@@ -76,10 +76,6 @@ pub fn remove_range(
         if px[3] == 0 {
             return;
         }
-        let r = px[0];
-        let g = px[1];
-        let b = px[2];
-        let a = px[3];
 
         let (cb, cr) = chroma(px[0] as i32, px[1] as i32, px[2] as i32);
         let dcb = cb - key_cb;
@@ -90,11 +86,11 @@ pub fn remove_range(
             px.fill(0);
         } else if dist < max_thresh {
             let ratio_num = (dist - min_thresh) as u64;
-            let new_a = ((a as u64 * ratio_num * recip) >> 32) as u8;
+            let new_a = ((px[3] as u64 * ratio_num * recip) >> 32) as u8;
             let spill = 1.0_f32 - (dist - min_thresh) as f32 * inv_thresh_diff_f;
-            px[0] = (r as f32 - spill * krf) as u8;
-            px[1] = (g as f32 - spill * kgf) as u8;
-            px[2] = (b as f32 - spill * kbf) as u8;
+            px[0] = (px[0] as f32 - spill * krf) as u8;
+            px[1] = (px[1] as f32 - spill * kgf) as u8;
+            px[2] = (px[2] as f32 - spill * kbf) as u8;
             px[3] = new_a;
         }
     });
