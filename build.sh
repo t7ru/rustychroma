@@ -6,11 +6,13 @@ rm -rf dist
 mkdir -p dist/web dist/native
 
 echo "Building..."
-wasm-pack build --target web --features wasm
-cargo build --release --features c-api
+cargo build --target wasm32-unknown-unknown -r --features wasm
+wasm-bindgen --target web --out-dir dist/web --no-typescript target/wasm32-unknown-unknown/release/rustychroma.wasm
+cargo build --release
+cbindgen -o dist/native/rustychroma.h
 
 echo "Organizing..."
-cp target/release/rustychroma.dll dist/native/
-[ -f "rustychroma.h" ] && mv rustychroma.h dist/native/
+cp target/release/rustychroma.dll dist/native/ 2>/dev/null ||
+cp target/release/librustychroma.so dist/native/
 
 echo "Heeho! All done!"

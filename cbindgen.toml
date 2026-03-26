@@ -1,3 +1,11 @@
+language = "C"
 include_guard = "RUSTYCHROMA_H"
 no_includes = true
 sys_includes = ["cstdint"]
+
+[parse.expand]
+features = ["c-api", "parallel"]
+
+[defines]
+"feature = c-api" = "RUSTYCHROMA_C_API"
+"feature = parallel" = "RUSTYCHROMA_PARALLEL"

@@ -18,9 +18,6 @@ wasm-bindgen = { version = "0.2", optional = true }
 divan = "0.1.21"
 png = "0.18"
 
-[build-dependencies]
-cbindgen = "0.29"
-
 [lib]
 crate-type = ["cdylib", "rlib"]
 
