@@ -1,0 +1,91 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build-native:
+    name: Native (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cbindgen
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo install cbindgen
+
+      - name: Run build script
+        shell: bash
+        run: ./build.sh
+        env:
+          BUILD_TARGET: native
+          GEN_HEADER: ${{ matrix.os == 'ubuntu-latest' && 'true' || 'false' }}
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-${{ matrix.os }}
+          path: dist/native/*
+
+  build-wasm:
+    name: Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen
+        run: cargo install wasm-bindgen-cli
+
+      - name: Run build script
+        run: ./build.sh
+        env:
+          BUILD_TARGET: wasm
+
+      - name: Upload Wasm
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-dist
+          path: dist/web/*
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-native, build-wasm]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Package archive
+        run: |
+          mkdir -p web native
+
+          mv artifacts/*.js artifacts/*.wasm web/
+          zip -j rustychroma-web.zip web/*
+
+          mv artifacts/rustychroma.h native/
+          mv artifacts/*.dll artifacts/*.so artifacts/*.dylib native/ 2>/dev/null || true
+          zip -j rustychroma-native.zip native/*
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            rustychroma-web.zip
+            rustychroma-native.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
