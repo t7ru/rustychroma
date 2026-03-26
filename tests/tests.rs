@@ -101,7 +101,6 @@ fn test_remove_skips_already_transparent() {
 }
 
 #[test]
-#[ignore = "requires test.png"]
 fn test_remove_file() {
     let (mut pixels, w, h) = load_png_rgba("tests/test.png");
     let original_len = pixels.len();
@@ -145,7 +144,6 @@ fn test_remove_range_edge_semi_transparent() {
 }
 
 #[test]
-#[ignore = "requires test.png"]
 fn test_remove_range_file() {
     let (mut pixels, w, h) = load_png_rgba("tests/test.png");
     let original_len = pixels.len();
